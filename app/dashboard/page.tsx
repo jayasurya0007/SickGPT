@@ -46,12 +46,16 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-        <button 
-          onClick={() => auth.signOut()}
+        <button
+          onClick={async () => {
+            await auth.signOut();
+            router.push('/');
+          }}
           className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
           Logout
         </button>
+
       </div>
 
       {/* Symptom Checker Chat Section */}

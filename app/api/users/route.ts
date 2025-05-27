@@ -8,12 +8,13 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const client = await clientPromise;
-    const db = client.db();
+    const db = client.db('perplexity');
+
     const userData: Partial<UserData> = await request.json();
 
     if (!userData.uid || !userData.email) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: uid or email" },
         { status: 400 }
       );
     }
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     const updateData: Partial<UserData> = {
       email: userData.email,
       updatedAt: new Date(),
-      authProvider: userData.authProvider || ['email']
+      authProvider: userData.authProvider || ['email'],
     };
 
     if (userData.displayName) updateData.displayName = userData.displayName;
@@ -31,9 +32,9 @@ export async function POST(request: Request) {
 
     const result = await db.collection<UserData>('users').updateOne(
       { uid: userData.uid },
-      { 
+      {
         $set: updateData,
-        $setOnInsert: { createdAt: new Date() }
+        $setOnInsert: { createdAt: new Date() },
       },
       { upsert: true }
     );
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       uid: userData.uid,
-      isNewUser: !!result.upsertedId
+      isNewUser: !!result.upsertedId,
     }, { status: 200 });
 
   } catch (error) {
