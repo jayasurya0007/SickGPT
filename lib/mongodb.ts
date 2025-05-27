@@ -1,5 +1,5 @@
 //lib/mongodb.ts
-import { MongoClient } from 'mongodb';
+import { MongoClient,ObjectId} from 'mongodb';
 import { UserData } from '@/types/user';
 
 const uri = process.env.MONGODB_URI as string;
@@ -71,3 +71,57 @@ export async function saveUserData(userData: UserData) {
       throw error;
     }
   }
+
+  
+export async function getChatHistory(email: string) {
+  try {
+    const client = await clientPromise;
+    return await client.db()
+      .collection('chats')
+      .find({ email }, {
+        projection: {
+          messages: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        }
+      })
+      .sort({ createdAt: -1 })
+      .toArray();
+  } catch (error) {
+    console.error('MongoDB history fetch error:', error);
+    throw error;
+  }
+}
+
+export async function saveChatSession(email: string, messages: any[]) {
+  try {
+    const client = await clientPromise;
+    const result = await client.db()
+      .collection('chats')
+      .insertOne({
+        email,
+        messages,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    return result.insertedId;
+  } catch (error) {
+    console.error('MongoDB session save error:', error);
+    throw error;
+  }
+}
+
+export async function updateChatSession(sessionId: string, messages: any[]) {
+  try {
+    const client = await clientPromise;
+    return await client.db()
+      .collection('chats')
+      .updateOne(
+        { _id: new ObjectId(sessionId) },
+        { $set: { messages, updatedAt: new Date() } }
+      );
+  } catch (error) {
+    console.error('MongoDB session update error:', error);
+    throw error;
+  }
+}

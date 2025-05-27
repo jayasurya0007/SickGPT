@@ -5,10 +5,10 @@ import { UserData } from '@/types/user';
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ uid: string }> }
+  { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
-    const { uid } = await context.params;
+    const { uid } = await params;
 
     if (!uid) {
       return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
