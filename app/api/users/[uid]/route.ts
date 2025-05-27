@@ -1,12 +1,12 @@
 // app/api/users/[uid]/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { UserData } from '@/types/user';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { uid: string } }
 ) {
   try {
